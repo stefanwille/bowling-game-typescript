@@ -1,17 +1,17 @@
 function scoreGame(frames) {
   const scoredFrames = [];
   frames.forEach((frame, index) => {
-    let frameBonus = 0;
+    let frameScore;
     if (isStrike(frame)) {
-      frameBonus = strikeBonus(frame, index, frames);
+      frameScore = sum(frame.rolls) + strikeBonus(frame, index, frames);
     } else if (isSpare(frame)) {
-      frameBonus = spareBonus(frame, index, frames);
+      frameScore =
+        frame.rolls[0] + frame.rolls[1] + spareBonus(frame, index, frames);
     } else {
       // Basic frame
-      frameBonus = 0;
+      frameScore = sum(frame.rolls);
     }
-    const previousScore = index > 0 ? scoredFrames[index - 1].score : 0;
-    const score = sum(frame.rolls) + frameBonus + previousScore;
+    const score = previousScore(index, frames) + frameScore;
 
     const scoredFrame = {
       rolls: frame.rolls,
@@ -21,6 +21,15 @@ function scoreGame(frames) {
   });
 
   return scoredFrames;
+}
+
+function previousScore(index, frame) {
+  return (previousScore = isFirstFrame(index)
+    ? 0
+    : scoredFrames[index - 1].score);
+}
+function isFirstFrame(index) {
+  return index === 0;
 }
 
 function isStrike(frame) {
@@ -39,7 +48,7 @@ function strikeBonus(frame, index, frames) {
 
 function spareBonus(frame, index, frames) {
   if (isLastFrame(index, frames)) {
-    return 0;
+    return frame.rolls[2];
   } else {
     const nextFrameRolls = frames[index + 1].rolls;
     return nextFrameRolls[0];
@@ -215,14 +224,16 @@ describe("spareBonus()", () => {
   describe("when scoring the non-last frame", () => {
     it("returns the first roll of the next frame", () => {
       expect(
-        spareBonus([2, 8], 0, [{ rolls: [2, 8] }, { rolls: [1, 2] }])
+        spareBonus({ rolls: [2, 8] }, 0, [{ rolls: [2, 8] }, { rolls: [1, 2] }])
       ).toBe(1);
     });
   });
 
   describe("when scoring the non-last frame", () => {
-    it("returns 0, because the bonus was added before via sum()", () => {
-      expect(spareBonus([2, 8, 6], 0, [{ rolls: [2, 8, 6] }])).toBe(0);
+    it.only("returns the last roll", () => {
+      expect(spareBonus({ rolls: [2, 8, 6] }, 0, [{ rolls: [2, 8, 6] }])).toBe(
+        6
+      );
     });
   });
 });
