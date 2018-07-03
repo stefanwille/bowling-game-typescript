@@ -1,18 +1,7 @@
 function scoreGame(frames) {
   const scoredFrames = [];
   frames.forEach((frame, index) => {
-    let frameScore;
-    if (isStrike(frame)) {
-      frameScore = sum(frame.rolls) + strikeBonus(frame, index, frames);
-    } else if (isSpare(frame)) {
-      frameScore =
-        frame.rolls[0] + frame.rolls[1] + spareBonus(frame, index, frames);
-    } else {
-      // Basic frame
-      frameScore = sum(frame.rolls);
-    }
-    const score = previousScore(index, frames, scoredFrames) + frameScore;
-
+    const score = totalScoreForFrame(frame, index, scoredFrames, frames);
     const scoredFrame = {
       rolls: frame.rolls,
       score
@@ -21,6 +10,24 @@ function scoreGame(frames) {
   });
 
   return scoredFrames;
+}
+
+function totalScoreForFrame(frame, index, scoredFrames, frames) {
+  const score =
+    previousScore(index, frames, scoredFrames) +
+    frameScore(frame, index, scoredFrames, frames);
+  return score;
+}
+
+function frameScore(frame, index, scoredFrames, frames) {
+  if (isStrike(frame)) {
+    return 10 + strikeBonus(frame, index, frames);
+  } else if (isSpare(frame)) {
+    return 10 + spareBonus(frame, index, frames);
+  } else {
+    // Basic frame
+    return sum(frame.rolls);
+  }
 }
 
 function previousScore(index, frame, scoredFrames) {
