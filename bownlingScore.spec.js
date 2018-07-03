@@ -11,7 +11,7 @@ function scoreGame(frames) {
       // Basic frame
       frameScore = sum(frame.rolls);
     }
-    const score = previousScore(index, frames) + frameScore;
+    const score = previousScore(index, frames, scoredFrames) + frameScore;
 
     const scoredFrame = {
       rolls: frame.rolls,
@@ -23,10 +23,8 @@ function scoreGame(frames) {
   return scoredFrames;
 }
 
-function previousScore(index, frame) {
-  return (previousScore = isFirstFrame(index)
-    ? 0
-    : scoredFrames[index - 1].score);
+function previousScore(index, frame, scoredFrames) {
+  return isFirstFrame(index) ? 0 : scoredFrames[index - 1].score;
 }
 function isFirstFrame(index) {
   return index === 0;
@@ -230,7 +228,7 @@ describe("spareBonus()", () => {
   });
 
   describe("when scoring the non-last frame", () => {
-    it.only("returns the last roll", () => {
+    it("returns the last roll", () => {
       expect(spareBonus({ rolls: [2, 8, 6] }, 0, [{ rolls: [2, 8, 6] }])).toBe(
         6
       );
