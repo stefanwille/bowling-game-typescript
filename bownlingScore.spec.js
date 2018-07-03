@@ -1,27 +1,20 @@
-
 function scoreGame(game) {
   const scoredGame = [];
   game.forEach((frame, index) => {
-    const previousScore = index > 0 ? scoredGame[index - 1].score : 0;
-    let score = 0;
-    if (frame.roles[0] === 10) {
-      // Strike
-      const nextFrame = game[index + 1];
-      score =
-        sum(frame.roles) +
-        nextFrame.roles[0] +
-        nextFrame.roles[1] +
-        previousScore;
-    } else if (frame.roles[0] + frame.roles[1] === 10) {
-      // Spare
-      const nextFrame = game[index + 1];
-      score = sum(frame.roles) + nextFrame.roles[0] + previousScore;
+    let frameBonus = 0;
+    if (isStrike(frame)) {
+      frameBonus = strikeBonus(frame, index, game);
+    } else if (isSpare(frame)) {
+      frameBonus = spareBonus(frame, index, game);
     } else {
       // Basic frame
-      score = sum(frame.roles) + previousScore;
+      frameBonus = 0;
     }
+    const previousScore = index > 0 ? scoredGame[index - 1].score : 0;
+    const score = sum(frame.rolls) + frameBonus + previousScore;
+
     const scoredFrame = {
-      roles: frame.roles,
+      rolls: frame.rolls,
       score
     };
     scoredGame.push(scoredFrame);
@@ -30,84 +23,110 @@ function scoreGame(game) {
   return scoredGame;
 }
 
+function isStrike(frame) {
+  return frame.rolls[0] === 10;
+}
+
+function isSpare(frame) {
+  return frame.rolls[0] + frame.rolls[1] === 10;
+}
+
+function strikeBonus(frame, index, game) {
+  const nextFrameRolls = index + 1 < game.length ? game[index + 1].rolls : [];
+  return nextFrameRolls[0] + nextFrameRolls[1];
+}
+
+function spareBonus(frame, index, game) {
+  if (isLastFrame(index, game)) {
+    return 0;
+  } else {
+    const nextFrameRolls = game[index + 1].rolls;
+    return nextFrameRolls[0];
+  }
+}
+
 function sum(a) {
   return a.reduce((accu, currentValue) => accu + currentValue, 0);
 }
 
+function isLastFrame(index, game) {
+  return index + 1 >= game.length;
+}
+
 describe("scoreGame()", () => {
-  it("acceptance test", () => {
+  it("handles the acceptance test example", () => {
     const game = [
       {
-        roles: [1, 4]
+        rolls: [1, 4]
       },
       {
-        roles: [4, 5]
+        rolls: [4, 5]
       },
       {
-        roles: [6, 4]
+        rolls: [6, 4]
       },
       {
-        roles: [5, 5]
+        rolls: [5, 5]
       },
       {
-        roles: [10]
+        rolls: [10]
       },
       {
-        roles: [0, 1]
+        rolls: [0, 1]
       },
       {
-        roles: [7, 3]
+        rolls: [7, 3]
       },
       {
-        roles: [6, 4]
+        rolls: [6, 4]
       },
       {
-        roles: [10]
+        rolls: [10]
       },
       {
-        roles: [2, 8, 6]
+        rolls: [2, 8, 6]
       }
     ];
 
     const expected = [
       {
-        roles: [1, 4],
+        rolls: [1, 4],
         score: 5
       },
       {
-        roles: [4, 5],
+        rolls: [4, 5],
         score: 14
       },
       {
-        roles: [6, 4],
+        rolls: [6, 4],
         score: 29
       },
       {
-        roles: [5, 5],
+        rolls: [5, 5],
         score: 49
       },
       {
-        roles: [10],
+        rolls: [10],
         score: 60
       },
       {
-        roles: [0, 1],
+        rolls: [0, 1],
         score: 61
       },
       {
-        roles: [7, 3],
+        rolls: [7, 3],
         score: 77
       },
       {
-        roles: [6, 4],
+        rolls: [6, 4],
         score: 97
       },
       {
-        roles: [10],
+        rolls: [10],
         score: 117
       },
       {
-        roles: [2, 8, 6],
+        rolls: [2, 8, 6],
         score: 133
       }
     ];
@@ -116,22 +135,22 @@ describe("scoreGame()", () => {
   });
 
   describe("with a basic frame", () => {
-    it("adds the roles", () => {
+    it("adds the rolls", () => {
       const game = [
         {
-          roles: [1, 4]
+          rolls: [1, 4]
         },
         {
-          roles: [2, 4]
+          rolls: [2, 4]
         }
       ];
       const expected = [
         {
-          roles: [1, 4],
+          rolls: [1, 4],
           score: 5
         },
         {
-          roles: [2, 4],
+          rolls: [2, 4],
           score: 11
         }
       ];
@@ -141,22 +160,22 @@ describe("scoreGame()", () => {
   });
 
   describe("with a spare", () => {
-    it("adds the roles plus the first role from the next frame", () => {
+    it("adds the rolls plus the first roll from the next frame", () => {
       const game = [
         {
-          roles: [1, 9]
+          rolls: [1, 9]
         },
         {
-          roles: [2, 4]
+          rolls: [2, 4]
         }
       ];
       const expected = [
         {
-          roles: [1, 9],
+          rolls: [1, 9],
           score: 12
         },
         {
-          roles: [2, 4],
+          rolls: [2, 4],
           score: 18
         }
       ];
@@ -166,22 +185,22 @@ describe("scoreGame()", () => {
   });
 
   describe("with a strike", () => {
-    it("adds the roles plus the first two roles from the next frame", () => {
+    it("adds the rolls plus the first two rolls from the next frame", () => {
       const game = [
         {
-          roles: [10]
+          rolls: [10]
         },
         {
-          roles: [0, 1]
+          rolls: [0, 1]
         }
       ];
       const expected = [
         {
-          roles: [10],
+          rolls: [10],
           score: 11
         },
         {
-          roles: [0, 1],
+          rolls: [0, 1],
           score: 12
         }
       ];
@@ -189,4 +208,24 @@ describe("scoreGame()", () => {
       expect(scoreGame(game)).toEqual(expected);
     });
   });
+});
+
+describe("spareBonus()", () => {
+  describe("when scoring the non-last frame", () => {
+    it("returns the first roll of the next frame", () => {
+      expect(
+        spareBonus([2, 8], 0, [{ rolls: [2, 8] }, { rolls: [1, 2] }])
+      ).toBe(1);
+    });
+  });
+
+  describe("when scoring the non-last frame", () => {
+    it("returns 0, because the bonus was added before via sum()", () => {
+      expect(spareBonus([2, 8, 6], 0, [{ rolls: [2, 8, 6] }])).toBe(0);
+    });
+  });
+
+  // {
+  //   rolls: [2, 8, 6]
+  // }
 });
