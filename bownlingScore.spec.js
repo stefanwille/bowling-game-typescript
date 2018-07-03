@@ -1,15 +1,17 @@
 function scoreGame(frames) {
-  const scoredFrames = [];
-  frames.forEach((frame, index) => {
-    const score = totalScoreForFrame(frame, index, scoredFrames, frames);
-    const scoredFrame = {
-      rolls: frame.rolls,
-      score
-    };
-    scoredFrames.push(scoredFrame);
-  });
+  const callback = (scoredFrames, frame, index) => [
+    ...scoredFrames,
+    scoreFrame(frame, index, scoredFrames, frames)
+  ];
+  return frames.reduce(callback, []);
+}
 
-  return scoredFrames;
+function scoreFrame(frame, index, scoredFrames, frames) {
+  const score = totalScoreForFrame(frame, index, scoredFrames, frames);
+  return {
+    rolls: frame.rolls,
+    score
+  };
 }
 
 function totalScoreForFrame(frame, index, scoredFrames, frames) {
