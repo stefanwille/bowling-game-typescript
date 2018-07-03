@@ -1,0 +1,13 @@
+{
+  "name": "bowling",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^5.0.1",
+    "jest": "^23.2.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.10"
+  }
+}
