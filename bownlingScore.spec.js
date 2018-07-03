@@ -1,26 +1,26 @@
-function scoreGame(game) {
-  const scoredGame = [];
-  game.forEach((frame, index) => {
+function scoreGame(frames) {
+  const scoredFrames = [];
+  frames.forEach((frame, index) => {
     let frameBonus = 0;
     if (isStrike(frame)) {
-      frameBonus = strikeBonus(frame, index, game);
+      frameBonus = strikeBonus(frame, index, frames);
     } else if (isSpare(frame)) {
-      frameBonus = spareBonus(frame, index, game);
+      frameBonus = spareBonus(frame, index, frames);
     } else {
       // Basic frame
       frameBonus = 0;
     }
-    const previousScore = index > 0 ? scoredGame[index - 1].score : 0;
+    const previousScore = index > 0 ? scoredFrames[index - 1].score : 0;
     const score = sum(frame.rolls) + frameBonus + previousScore;
 
     const scoredFrame = {
       rolls: frame.rolls,
       score
     };
-    scoredGame.push(scoredFrame);
+    scoredFrames.push(scoredFrame);
   });
 
-  return scoredGame;
+  return scoredFrames;
 }
 
 function isStrike(frame) {
@@ -31,16 +31,17 @@ function isSpare(frame) {
   return frame.rolls[0] + frame.rolls[1] === 10;
 }
 
-function strikeBonus(frame, index, game) {
-  const nextFrameRolls = index + 1 < game.length ? game[index + 1].rolls : [];
+function strikeBonus(frame, index, frames) {
+  const nextFrameRolls =
+    index + 1 < frames.length ? frames[index + 1].rolls : [];
   return nextFrameRolls[0] + nextFrameRolls[1];
 }
 
-function spareBonus(frame, index, game) {
-  if (isLastFrame(index, game)) {
+function spareBonus(frame, index, frames) {
+  if (isLastFrame(index, frames)) {
     return 0;
   } else {
-    const nextFrameRolls = game[index + 1].rolls;
+    const nextFrameRolls = frames[index + 1].rolls;
     return nextFrameRolls[0];
   }
 }
@@ -49,13 +50,13 @@ function sum(a) {
   return a.reduce((accu, currentValue) => accu + currentValue, 0);
 }
 
-function isLastFrame(index, game) {
-  return index + 1 >= game.length;
+function isLastFrame(index, frames) {
+  return index + 1 >= frames.length;
 }
 
 describe("scoreGame()", () => {
   it("handles the acceptance test example", () => {
-    const game = [
+    const frames = [
       {
         rolls: [1, 4]
       },
@@ -131,12 +132,12 @@ describe("scoreGame()", () => {
       }
     ];
 
-    expect(scoreGame(game)).toEqual(expected);
+    expect(scoreGame(frames)).toEqual(expected);
   });
 
   describe("with a basic frame", () => {
     it("adds the rolls", () => {
-      const game = [
+      const frames = [
         {
           rolls: [1, 4]
         },
@@ -155,7 +156,7 @@ describe("scoreGame()", () => {
         }
       ];
 
-      expect(scoreGame(game)).toEqual(expected);
+      expect(scoreGame(frames)).toEqual(expected);
     });
   });
 
@@ -224,8 +225,4 @@ describe("spareBonus()", () => {
       expect(spareBonus([2, 8, 6], 0, [{ rolls: [2, 8, 6] }])).toBe(0);
     });
   });
-
-  // {
-  //   rolls: [2, 8, 6]
-  // }
 });
