@@ -1,8 +1,6 @@
 function scoreGame(frames) {
-  const callback = (scoredFrames, frame, index) => [
-    ...scoredFrames,
-    scoreFrame(frame, index, scoredFrames, frames)
-  ];
+  const callback = (scoredFrames, frame, index) =>
+    scoredFrames.concat([scoreFrame(frame, index, scoredFrames, frames)]);
   return frames.reduce(callback, []);
 }
 
@@ -48,18 +46,29 @@ function isSpare(frame) {
 }
 
 function strikeBonus(frame, index, frames) {
-  const nextFrameRolls =
-    index + 1 < frames.length ? frames[index + 1].rolls : [];
-  return nextFrameRolls[0] + nextFrameRolls[1];
+  const nextRolls = nextNRolls(0, index, frames, 2);
+  return sum(nextRolls);
 }
 
 function spareBonus(frame, index, frames) {
-  if (isLastFrame(index, frames)) {
-    return frame.rolls[2];
-  } else {
-    const nextFrameRolls = frames[index + 1].rolls;
-    return nextFrameRolls[0];
+  const nextRolls = nextNRolls(1, index, frames, 1);
+  return sum(nextRolls);
+}
+
+function nextNRolls(currentRollIndex, frameIndex, frames, n) {
+  const nextRolls = [];
+  let nextRollIndex = currentRollIndex;
+  let currentFrameIndex = frameIndex;
+  for (let i = 0; i < n; i++) {
+    nextRollIndex++;
+    if (nextRollIndex >= frames[currentFrameIndex].rolls.length) {
+      currentFrameIndex++;
+      nextRollIndex = 0;
+    }
+    const nextRoll = frames[currentFrameIndex].rolls[nextRollIndex];
+    nextRolls.push(nextRoll);
   }
+  return nextRolls;
 }
 
 function sum(a) {
@@ -201,29 +210,205 @@ describe("scoreGame()", () => {
     });
   });
 
-  describe("with a strike", () => {
-    it("adds the rolls plus the first two rolls from the next frame", () => {
+  describe("with a perfect game", () => {
+    it("scores 300", () => {
       const game = [
         {
           rolls: [10]
         },
         {
-          rolls: [0, 1]
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10]
+        },
+        {
+          rolls: [10, 10, 10]
         }
       ];
       const expected = [
         {
           rolls: [10],
-          score: 11
+          score: 30
         },
         {
-          rolls: [0, 1],
-          score: 12
+          rolls: [10],
+          score: 60
+        },
+        {
+          rolls: [10],
+          score: 90
+        },
+        {
+          rolls: [10],
+          score: 120
+        },
+        {
+          rolls: [10],
+          score: 150
+        },
+        {
+          rolls: [10],
+          score: 180
+        },
+        {
+          rolls: [10],
+          score: 210
+        },
+        {
+          rolls: [10],
+          score: 240
+        },
+        {
+          rolls: [10],
+          score: 270
+        },
+        {
+          rolls: [10, 10, 10],
+          score: 300
         }
       ];
 
       expect(scoreGame(game)).toEqual(expected);
     });
+  });
+});
+
+describe("with a gutter game", () => {
+  it("scores 0", () => {
+    const game = [
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      },
+      {
+        rolls: [0]
+      }
+    ];
+    const expected = [
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      },
+      {
+        rolls: [0],
+        score: 0
+      }
+    ];
+
+    expect(scoreGame(game)).toEqual(expected);
+  });
+});
+
+describe("with a strike", () => {
+  it("adds the rolls plus the first two rolls from the next frame", () => {
+    const game = [
+      {
+        rolls: [10]
+      },
+      {
+        rolls: [0, 1]
+      }
+    ];
+    const expected = [
+      {
+        rolls: [10],
+        score: 11
+      },
+      {
+        rolls: [0, 1],
+        score: 12
+      }
+    ];
+
+    expect(scoreGame(game)).toEqual(expected);
+  });
+});
+
+describe("nextNRolls()", () => {
+  it("returns the next n rolls", () => {
+    const frames = [{ rolls: [10] }, { rolls: [0, 1] }];
+    expect(nextNRolls(0, 0, frames, 2)).toEqual([0, 1]);
+  });
+});
+
+describe("strikeBonus()", () => {
+  it("return the sum of the next 2 rolls", () => {
+    const frames = [{ rolls: [10] }, { rolls: [0, 1] }];
+    expect(strikeBonus(0, 0, frames, 2)).toEqual(1);
   });
 });
 
