@@ -1,14 +1,3 @@
-/*
-TODO
-- 👍 extract isSpare()
-- 👍 Test Strike
-- 👍 Test spare in last frame
-- 👍 use slice()
-- 👍 Test strike in last frame
-- 👍 Test perfect game
-- 👍 Enable acceptance test
-*/
-
 function flatten(array) {
   return array.reduce((acc, val) => acc.concat(val), []);
 }
@@ -22,44 +11,45 @@ function scoreGame(inputRolls) {
   const scoredFrames = [];
   let rollIndex = 0;
   while (rollIndex < rolls.length) {
-    let frameRolls = null;
-    let frameScore = 0;
-    if (isStrike(rolls, rollIndex)) {
-      const lastFrame = rollIndex + 3 === rolls.length;
-      if (lastFrame) {
-        frameRolls = getNRolls(rolls, rollIndex, 3);
-        frameScore = sum(frameRolls);
-        rollIndex += 3;
-      } else {
-        frameRolls = getNRolls(rolls, rollIndex, 1);
-        frameScore = 10 + sum(getNRolls(rolls, rollIndex + 1, 2));
-        rollIndex += 1;
-      }
-    } else if (isSpare(rolls, rollIndex)) {
-      const lastFrame = rollIndex + 3 === rolls.length;
-      if (lastFrame) {
-        frameRolls = getNRolls(rolls, rollIndex, 3);
-        frameScore = 10 + rolls[rollIndex + 2];
-        rollIndex += 3;
-      } else {
-        frameRolls = getNRolls(rolls, rollIndex, 2);
-        frameScore = sum(frameRolls) + rolls[rollIndex + 2];
-        rollIndex += 2;
-      }
-    } else {
-      // Basic frame
-      frameRolls = getNRolls(rolls, rollIndex, 2);
-      frameScore = sum(frameRolls);
-      rollIndex += 2;
-    }
+    const { frameScore, frameRolls } = scoreFrame(rolls, rollIndex);
     const score = frameScore + previousScore(scoredFrames);
     const scoredFrame = {
       rolls: frameRolls,
       score: score
     };
     scoredFrames.push(scoredFrame);
+    rollIndex += frameRolls.length;
   }
   return scoredFrames;
+}
+
+function scoreFrame(rolls, rollIndex) {
+  let frameRolls = null;
+  let frameScore = 0;
+  if (isStrike(rolls, rollIndex)) {
+    const lastFrame = rollIndex + 3 === rolls.length;
+    if (lastFrame) {
+      frameRolls = getNRolls(rolls, rollIndex, 3);
+      frameScore = sum(frameRolls);
+    } else {
+      frameRolls = getNRolls(rolls, rollIndex, 1);
+      frameScore = 10 + sum(getNRolls(rolls, rollIndex + 1, 2));
+    }
+  } else if (isSpare(rolls, rollIndex)) {
+    const lastFrame = rollIndex + 3 === rolls.length;
+    if (lastFrame) {
+      frameRolls = getNRolls(rolls, rollIndex, 3);
+      frameScore = 10 + rolls[rollIndex + 2];
+    } else {
+      frameRolls = getNRolls(rolls, rollIndex, 2);
+      frameScore = sum(frameRolls) + rolls[rollIndex + 2];
+    }
+  } else {
+    // Basic frame
+    frameRolls = getNRolls(rolls, rollIndex, 2);
+    frameScore = sum(frameRolls);
+  }
+  return { frameScore, frameRolls };
 }
 
 function getNRolls(rolls, from, n) {
