@@ -5,8 +5,8 @@ TODO
 - 👍 Test spare in last frame
 - 👍 use slice()
 - 👍 Test strike in last frame
-- Test perfect game
-- Enable acceptance test
+- 👍 Test perfect game
+- 👍 Enable acceptance test
 */
 
 function flatten(array) {
