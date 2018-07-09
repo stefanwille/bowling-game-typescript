@@ -21,42 +21,38 @@ function scoreGame(inputRolls) {
   const rolls = flatten(inputRolls);
   const scoredFrames = [];
   let rollIndex = 0;
-  let score = 0;
   while (rollIndex < rolls.length) {
     let frameRolls = null;
+    let frameScore = 0;
     if (isStrike(rolls, rollIndex)) {
       const lastFrame = rollIndex + 3 === rolls.length;
       if (lastFrame) {
-        frameRolls = nRolls(rolls, rollIndex, 3);
-        const frameScore = sum(frameRolls);
-        score = frameScore + previousScore(scoredFrames);
+        frameRolls = getNRolls(rolls, rollIndex, 3);
+        frameScore = sum(frameRolls);
         rollIndex += 3;
       } else {
-        frameRolls = nRolls(rolls, rollIndex, 1);
-        const frameScore = 10 + sum(nRolls(rolls, rollIndex + 1, 2));
-        score = frameScore + previousScore(scoredFrames);
+        frameRolls = getNRolls(rolls, rollIndex, 1);
+        frameScore = 10 + sum(getNRolls(rolls, rollIndex + 1, 2));
         rollIndex += 1;
       }
     } else if (isSpare(rolls, rollIndex)) {
       const lastFrame = rollIndex + 3 === rolls.length;
       if (lastFrame) {
-        frameRolls = nRolls(rolls, rollIndex, 3);
-        const frameScore = 10 + rolls[rollIndex + 2];
-        score = frameScore + previousScore(scoredFrames);
+        frameRolls = getNRolls(rolls, rollIndex, 3);
+        frameScore = 10 + rolls[rollIndex + 2];
         rollIndex += 3;
       } else {
-        frameRolls = nRolls(rolls, rollIndex, 2);
-        const frameScore = sum(frameRolls) + rolls[rollIndex + 2];
-        score = frameScore + previousScore(scoredFrames);
+        frameRolls = getNRolls(rolls, rollIndex, 2);
+        frameScore = sum(frameRolls) + rolls[rollIndex + 2];
         rollIndex += 2;
       }
     } else {
       // Basic frame
-      frameRolls = nRolls(rolls, rollIndex, 2);
-      const frameScore = sum(frameRolls);
-      score = frameScore + previousScore(scoredFrames);
+      frameRolls = getNRolls(rolls, rollIndex, 2);
+      frameScore = sum(frameRolls);
       rollIndex += 2;
     }
+    const score = frameScore + previousScore(scoredFrames);
     const scoredFrame = {
       rolls: frameRolls,
       score: score
@@ -66,8 +62,9 @@ function scoreGame(inputRolls) {
   return scoredFrames;
 }
 
-function nRolls(rolls, index, n) {
-  return rolls.slice(index, index + n);
+function getNRolls(rolls, from, n) {
+  const to = from + n;
+  return rolls.slice(from, to);
 }
 
 function isSpare(rolls, rollIndex) {
