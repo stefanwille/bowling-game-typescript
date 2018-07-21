@@ -1,18 +1,21 @@
-/*
-  - 🇪🇸 Try what happens if I only test for the game score 😸
-*/
+interface NestedRollArray extends Array<NestedRollArrayValue> {}
 
-function flatten(array) {
-  return array.reduce((acc, val) => acc.concat(val), []);
+type NestedRollArrayValue = number | number[];
+
+function flatten(array: NestedRollArray): number[] {
+  return array.reduce(
+    (acc: number[], val: NestedRollArrayValue) => acc.concat(val),
+    []
+  );
 }
 
-function sum(array) {
+function sum(array: number[]) {
   return array.reduce((accu, currentValue) => accu + currentValue);
 }
 
-function scoreGame(inputRolls) {
+function scoreGame(inputRolls: NestedRollArray) {
   const rolls = flatten(inputRolls);
-  const scores = [];
+  const scores: number[] = [];
   let previousScore = 0;
   let rollIndex = 0;
   while (rollIndex < rolls.length) {
@@ -26,7 +29,7 @@ function scoreGame(inputRolls) {
   return scores[scores.length - 1];
 }
 
-function scoreFrame(rolls, rollIndex) {
+function scoreFrame(rolls: number[], rollIndex: number) {
   if (isStrike(rolls, rollIndex)) {
     return scoreStrike(rolls, rollIndex);
   } else if (isSpare(rolls, rollIndex)) {
@@ -37,12 +40,12 @@ function scoreFrame(rolls, rollIndex) {
   }
 }
 
-function scoreBasicFrame(rolls, rollIndex) {
+function scoreBasicFrame(rolls: number[], rollIndex: number) {
   const frameScore = sumOfNRolls(rolls, rollIndex, 2);
   return { frameScore, numberOfRollsInFrame: 2 };
 }
 
-function scoreSpare(rollIndex, rolls) {
+function scoreSpare(rollIndex: number, rolls: number[]) {
   let numberOfRollsInFrame;
   const lastFrame = rollIndex + 3 === rolls.length;
   if (lastFrame) {
@@ -54,7 +57,7 @@ function scoreSpare(rollIndex, rolls) {
   return { frameScore, numberOfRollsInFrame };
 }
 
-function scoreStrike(rolls, rollIndex) {
+function scoreStrike(rolls: number[], rollIndex: number) {
   let frameScore;
   const lastFrame = rollIndex + 3 === rolls.length;
   let numberOfRollsInFrame;
@@ -67,21 +70,21 @@ function scoreStrike(rolls, rollIndex) {
   return { frameScore, numberOfRollsInFrame };
 }
 
-function sumOfNRolls(rolls, from, n) {
+function sumOfNRolls(rolls: number[], from: number, n: number) {
   const nRolls = getNRolls(rolls, from, n);
   return sum(nRolls);
 }
 
-function getNRolls(rolls, from, n) {
+function getNRolls(rolls: number[], from: number, n: number) {
   const to = from + n;
   return rolls.slice(from, to);
 }
 
-function isSpare(rolls, rollIndex) {
+function isSpare(rolls: number[], rollIndex: number) {
   return rolls[rollIndex] + rolls[rollIndex + 1] === 10;
 }
 
-function isStrike(rolls, rollIndex) {
+function isStrike(rolls: number[], rollIndex: number) {
   return rolls[rollIndex] === 10;
 }
 

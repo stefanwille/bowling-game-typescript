@@ -3,6 +3,7 @@ module.exports = {
   env: { jest: true },
   plugins: ["prettier"],
   rules: {
-    "prettier/prettier": "error"
+    "prettier/prettier": "off",
+    "spaced-comment": "off"
   }
 };
